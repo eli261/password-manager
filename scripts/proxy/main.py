@@ -30,7 +30,7 @@ def projectTargetDir():
 class ClipperzTestSite(server.Site):
 
 	def __init__(self, resource, logPath=None, timeout=60 * 60 * 12):
-		server.Site.__init__(self, resource, logPath, timeout)
+		server.Site.__init__(self, resource, logPath=logPath, timeout=timeout)
 
 
 	def getResourceFor(self, request):
