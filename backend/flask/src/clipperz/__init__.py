@@ -7,7 +7,7 @@ from simplekv.db.sql import SQLAlchemyStore
 from flask.ext.kvsession import KVSessionExtension
 from config import *
 
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app = Flask(__name__, static_url_path='')
 lm = LoginManager()
 lm.init_app(app)

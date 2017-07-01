@@ -1,11 +1,13 @@
 """Clipperz views."""
-from flask import session, request, g, send_from_directory
-from clipperz import app, db, lm
+from flask import session, request, g, send_from_directory, make_response
+from clipperz import app, db, lm, APP_ROOT
 from .models import User
 from .api import *  # NOQA
 from .exceptions import InvalidUsage
 from flask.ext.login import login_required
 from os.path import dirname
+import os
+import json
 
 
 @lm.user_loader
@@ -63,7 +65,7 @@ def dump(frontend_version):
             versions[version.reference] = {
                 'header':       version.header,
                 'data':         version.data,
-                'version':      version.api_version,
+                'version':      str(version.api_version),
                 'creationDate': str(version.creation_date),
                 'updateDate':   str(version.update_date),
                 'accessDate':   str(version.access_date)
@@ -71,32 +73,32 @@ def dump(frontend_version):
 
         records[current_record.reference] = {
             'data':             current_record.data,
-            'version':          current_record.version,
+            'version':          str(current_record.api_version),
             'creationDate':     str(current_record.creation_date),
             'updateDate':       str(current_record.update_date),
             'accessDate':       str(current_record.access_date),
-            'currentVersion':   current_record.current_record_version,
+            'currentVersion':   str(current_record.current_record_version.reference),
             'versions':         versions
         }
 
     user_data['users'][user.username] = {
-        's':                    user.srp_s,
-        'v':                    user.srp_v,
-        'version':              user.auth_version,
+        's':                    str(user.srp_s),
+        'v':                    str(user.srp_v),
+        'version':              str(user.auth_version),
         'maxNumberOfRecords':   '100',
         'userDetails':          user.header,
         'statistics':           user.statistics,
-        'userDetailsVersion':   user.version,
+        'userDetailsVersion':   str(user.version),
         'records':              records
     }
 
     offline_data_placeholder = (
         '_clipperz_data_ = {user_data}\n'
-        'Clipperz.PM.Proxy.defaultProxy = new Clipperz.PM.Proxy.Offline();'
+        'Clipperz.PM.Proxy.defaultProxy = new Clipperz.PM.Proxy.Offline({args});'
         '\n'
         'Clipperz.Crypto.PRNG.defaultRandomGenerator()'
         '.fastEntropyAccumulationForTestingPurpose();'
-        '\n').format(user_data=user_data)
+        '\n').format(user_data=json.dumps(user_data, indent=4), args='{"data": _clipperz_data_}')
 
     with open(os.path.join(APP_ROOT,
                            '{0}/index.html'.format(frontend_version))) as f:

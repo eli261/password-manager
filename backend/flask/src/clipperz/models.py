@@ -177,7 +177,7 @@ class OneTimePassword(db.Model):
     request_date = db.Column(db.DateTime())
     usage_date = db.Column(db.DateTime())
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Initialize a OneTimePassword."""
         self.creation_date = datetime.datetime.utcnow()
 
