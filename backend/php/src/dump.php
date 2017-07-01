@@ -11,7 +11,23 @@ header('Content-Disposition: attachment; filename=Clipperz_'.date("Ymd").'.html'
 	include "./objects/class.onetimepassword.php";
 	include "./objects/class.onetimepasswordstatus.php";
 
-	$htmlContent = file_get_contents("../index.html");
+	function get_frontend()
+	{
+		$frontend = 'beta';
+		if(isset($_SERVER['PATH_INFO']))
+		{
+			$pathinfo = explode('/', $_SERVER['PATH_INFO']);
+			$allow_frontend = array('beta', 'delta', 'gamma');
+			if(is_array($pathinfo) && count($pathinfo) > 1 && in_array($pathinfo[1], $allow_frontend))
+			{
+				$frontend = $pathinfo[1];
+			}
+		}
+		
+		return $frontend;
+	}
+	$frontend = get_frontend();
+	$htmlContent = file_get_contents("${frontend}/index.html");
 
 	session_start();
 
@@ -93,7 +109,7 @@ header('Content-Disposition: attachment; filename=Clipperz_'.date("Ymd").'.html'
 						"\t}\n" .
 					"}\n" .
 					"\n" .
-					"Clipperz.PM.Proxy.defaultProxy = new Clipperz.PM.Proxy.Offline();\n" .
+					"Clipperz.PM.Proxy.defaultProxy = new Clipperz.PM.Proxy.Offline({'data': _clipperz_dump_data_});\n" .
 					"Clipperz.Crypto.PRNG.defaultRandomGenerator().fastEntropyAccumulationForTestingPurpose();" .
 					"\n";
 
